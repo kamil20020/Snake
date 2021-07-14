@@ -1,3 +1,8 @@
+function randInt(min, max){
+
+	return Math.floor(Math.random()*max + min);
+}
+
 class SnakeBody{
 	constructor(x, y, width, height){
 
@@ -40,17 +45,50 @@ class SnakeBody{
 	}
 }
 
+class Food{
+	constructor(x, y, width, height){
+
+		this.x = x;
+		this.y = y;
+		this.width = width;
+		this.height = height;
+		this.body = this.initDiv();
+	}
+
+	initDiv = () => {
+
+		let basicDiv = document.createElement("div");
+		basicDiv.style.width = this.width;
+		basicDiv.style.height = this.height;
+		basicDiv.style.left = this.x;
+		basicDiv.style.top = this.y;
+		basicDiv.className = "food";
+
+		return basicDiv;
+	}
+
+	updatePos = (x, y) => {
+		this.x = x;
+		this.y = y;
+		this.body.style.left = x;
+		this.body.style.top = y;
+	}
+}
+
 class Snake{
 	constructor(){
 
 		this.board = document.getElementById("board").getBoundingClientRect();
-		this.snake = [5];
+		this.snake = new Array(5);
 
 		this.appendSnake();
 		this.i = setInterval(this.logic.bind(this), 80);
 		this.direction = "right";
+		this.food = 0;
 
 		document.addEventListener('keydown', this.handleKeyboard.bind(this));
+
+		this.initFood();
 	}
 
 	correctBodyAfterMove = (prevBody) => {
@@ -64,9 +102,12 @@ class Snake{
 		}
 	}
 
-	handleKeyboard = (e) => {
+	doIntersects = (x1, y1, w1, h1, x2, y2, w2, h2) => {
 
-		console.log(e.code);
+		return (x1 + w1 > x2 && x1 < x2 + w2) && (y1 + h1 > y2 && y1 < y2 + h2);
+	}
+
+	handleKeyboard = (e) => {
 
 		switch(e.which	){
 
@@ -100,26 +141,71 @@ class Snake{
 		}
 	}
 
+	incrementBody = () => {
+
+		switch(this.direction){
+
+			case "right":
+
+				this.snake.push(new SnakeBody(this.snake[this.snake.length-1].x-40, 
+												this.snake[this.snake.length-1].y, 40, 40));
+				break;
+
+			case "left":
+
+				this.snake.push(new SnakeBody(this.snake[this.snake.length-1].x+40, 
+												this.snake[this.snake.length-1].y, 40, 40));
+				break;
+
+			case "down":
+
+				this.snake.push(new SnakeBody(this.snake[this.snake.length-1].x, 
+												this.snake[this.snake.length-1].y-40, 40, 40));
+				break;
+
+			case "top":
+
+				this.snake.push(new SnakeBody(this.snake[this.snake.length-1].x, 
+												this.snake[this.snake.length-1].y+40, 40, 40));
+				break;
+		}
+
+		board.appendChild(this.snake[this.snake.length-1].body);
+	}
+
 	appendSnake = () => {
 
 		let startX = 200;
 		let startY = 200;
 
-		for(let i=0; i < 5; i++){
+		for(let i=0; i < this.snake.length; i++){
 
 			this.snake[i] = new SnakeBody(startX, startY, 40, 40);
 			startX -= 40;
 		}
 
-		for(let i=0; i < 5; i++)
+		for(let i=0; i < this.snake.length; i++)
 			board.appendChild(this.snake[i].body);
+	}
+
+	initFood = () => {
+
+		this.food = new Food(0, 0, 40, 40);
+		board.appendChild(this.food.body);
+		this.spawnFood();
+	}
+
+	spawnFood = () => {
+
+		let x = randInt(0, this.board.width-this.food.width);
+		let y = randInt(0, this.board.height-this.food.height);
+
+		this.food.updatePos(x, y);
 	}
 	
 	logic = () => {
 
 		let prevBody = (JSON.parse(JSON.stringify(this.snake)));
-
-		console.log("A: " + prevBody[0].x);
 
 		switch(this.direction){
 
@@ -138,11 +224,18 @@ class Snake{
 			case "top":
 				this.snake[0].move(0, -40);
 				break;
-		}	
-
-		console.log("B: " + prevBody[0].x);
+		}
 
 		this.correctBodyAfterMove(prevBody);
+
+		if(this.doIntersects(this.snake[0].x, this.snake[0].y,
+							 this.snake[0].width, this.snake[0].height,
+							 this.food.x, this.food.y,
+						     this.food.width, this.food.height)){
+
+			this.spawnFood();
+			this.incrementBody();
+		}
 
 		if(this.snake[0].doTouchWall(this.board.width, this.board.height)){
 			
