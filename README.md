@@ -1,5 +1,5 @@
 # Snake (07.2021)
-Aplikacja webowa umożliwiająca użytkownikowi zagranie w popularną grę Snake. Gracz steruje wężem klawiszami w, a, s, d i jego zadaniem jest zdobycie jak najwięcej jedzenia. Aplikacja została wdrożona w serwisie GitHub Pages i dzięki temu gra jest dostępna 24/7 pod następującym adresem: https://kamil20020.github.io/Snake/
+Aplikacja webowa umożliwiająca użytkownikowi zagranie w popularną grę Snake. Gracz steruje wężem klawiszami w, a, s, d i jego zadaniem jest zdobycie jak najwięcej jedzenia. Aplikacja została wdrożona w serwisie GitHub Pages i dzięki temu gra jest dostępna 24/7 pod następującym adresem: https://kamil20020.github.io/Snake-07-2021/
 
 ## Technologie:
 * HTML
